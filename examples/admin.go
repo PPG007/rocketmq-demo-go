@@ -2,10 +2,9 @@ package examples
 
 import (
 	"context"
+	"github.com/apache/rocketmq-client-go/v2/admin"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"log"
-
-	"github.com/PPG007/rocketmq-client-go/v2/admin"
-	"github.com/PPG007/rocketmq-client-go/v2/primitive"
 )
 
 func CreateTopicIfNotExist(ctx context.Context, nameserver []string, broker, topic string) {

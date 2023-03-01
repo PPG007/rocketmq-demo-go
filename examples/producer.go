@@ -4,13 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/apache/rocketmq-client-go/v2/producer"
 	"log"
 	"strconv"
 	"sync"
-
-	"github.com/PPG007/rocketmq-client-go/v2"
-	"github.com/PPG007/rocketmq-client-go/v2/primitive"
-	"github.com/PPG007/rocketmq-client-go/v2/producer"
 )
 
 func InitProducer(f func(*rocketmq.Producer), opts ...producer.Option) {
@@ -62,21 +61,46 @@ func SendOneWay(ctx context.Context, p *rocketmq.Producer, topic string) {
 
 func SendInOrder(ctx context.Context, p *rocketmq.Producer, topic string) {
 	orderSteps := GenOrderSteps()
-	qSize := len((*p).GetTopicQueueList(topic))
 	for _, orderStep := range orderSteps {
 		msg := &primitive.Message{
 			Topic: topic,
 			Body:  []byte(orderStep.String()),
-			Queue: &primitive.MessageQueue{
-				Topic:   topic,
-				QueueId: int(orderStep.Id % int64(qSize)),
-			},
 		}
 		msg.WithShardingKey(strconv.FormatInt(orderStep.Id, 10))
 		_, err := (*p).SendSync(ctx, msg)
 		if err != nil {
 			log.Printf("Failed to send messages in order, error: %v\n", err)
 		}
+	}
+}
+
+func BatchSend(ctx context.Context, p *rocketmq.Producer, topic string) {
+	total := 100
+	messages := make([]*primitive.Message, 0, total)
+	for i := 0; i < total; i++ {
+		messages = append(messages, primitive.NewMessage(topic, []byte(fmt.Sprintf("batch message %d", i))))
+	}
+	_, err := (*p).SendSync(ctx, messages...)
+	if err != nil {
+		log.Printf("Failed to batch send messages, error: %v\n", err)
+	}
+}
+
+func SendDelayMessage(ctx context.Context, p *rocketmq.Producer, topic string) {
+	msg := primitive.NewMessage(topic, []byte("delay message"))
+	msg.WithDelayTimeLevel(2)
+	_, err := (*p).SendSync(ctx, msg)
+	if err != nil {
+		log.Printf("Failed to send delay message, error: %v\n", err)
+	}
+}
+
+func SendMessageWithCustomProperty(ctx context.Context, p *rocketmq.Producer, topic string, properties map[string]string) {
+	msg := primitive.NewMessage(topic, []byte("with property message"))
+	msg.WithProperties(properties)
+	_, err := (*p).SendSync(ctx, msg)
+	if err != nil {
+		log.Printf("Failed to send message with custom property, error: %v\n", err)
 	}
 }
 

@@ -2,7 +2,7 @@ module rocketmq-learn
 
 go 1.18
 
-require github.com/PPG007/rocketmq-client-go/v2 v2.1.2-rc1
+require github.com/apache/rocketmq-client-go/v2 v2.1.1
 
 require (
 	github.com/emirpasic/gods v1.18.1 // indirect
@@ -21,6 +21,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/sys v0.0.0-20220702020025-31831981b65f // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )
